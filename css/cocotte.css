@@ -1,0 +1,32 @@
+.choiceBox {
+    position: relative;
+    margin-top: 5px;
+}
+
+.mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    border: 1px solid #fff;
+    border-radius: 2px;
+}
+
+.flex-container {
+    display:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-content: center;
+    align-items: center;
+}
+
+
+.flex-items {
+    width: 30%;
+    height: 2em;
+    flex-grow: 0;
+    flex-shrink: 0;
+}

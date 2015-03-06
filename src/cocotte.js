@@ -1,42 +1,74 @@
+var palette = shuffle([
+    '#3b5998',
+    '#61bdcb',
+    '#c2f7fd',
+    '#696969',
+    '#bf3f34',
+    '#5a100d',
+    '#eab83f',
+    '#f28c3a',
+    '#f17553',
+    '#99c954',
+    '#038d80',
+    '#945c7f',
+]);
+
 var Choice = React.createClass({
-    render: function () {
+    getInitialState: function() {
+        return { visible: true }
+    },
+    reveal: function() {
+        this.setState({ visible: false })
+    },
+    render: function() {
+        var choiceStyle = {
+            background: palette[this.props.paletteNb]
+        };
+        if (!this.state.visible) {
+            choiceStyle['display'] = 'none';
+        }
         return (
-            <p>
-                {this.props.prefix + ' '}
-                <strong>{this.props.value}</strong>
-            </p>
+            <div className="choiceBox flex-items">
+                <div className="mask" onClick={this.reveal} style={choiceStyle}></div>
+                <strong>{this.props.value.name}</strong>
+            </div>
         );
     }
 });
 
-var Container = React.createClass({
-    reload: function () {
-        window.location.reload(true);
+var ChoiceContainer = React.createClass({
+    getInitialState: function() {
+        return { choices: [] }
+    },
+    componentDidMount: function () {
+        $.ajax({
+            url: this.props.url,
+            dataType: 'json',
+            success: function(data) {
+                this.setState({choices: shuffle(data)});
+            }.bind(this),
+            error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
     },
     render: function () {
         var containerStyle = {
             backgroundImage: 'url(/img/bg_' + this.props.bgNumber + '.jpg), url(/img/trame.png)',
         };
 
-        var possibilities = [
-            'Pizza',
-            'Kebab',
-            'Subway',
-            'Sushis',
-            'Graines',
-            'Frites Alors',
-            'Croco\'Green',
-        ]
-
-        possibilities = shuffle(possibilities);
+        var choiceNodes = this.state.choices.map(function(choice, key) {
+            return (
+                <Choice key={key} paletteNb={key} value={choice} />
+            );
+        });
 
         return (
-            <div className="cocotte" style={containerStyle} onClick={this.reload}>
+            <div className="cocotte" style={containerStyle}>
                 <div className="wrapper">
-                    <div className="cv">
+                    <div className="cv flex-container">
                         <h1>Où est-ce qu&apos;on bouffe à midi ?</h1>
-                        <Choice prefix="Ben on a qu'à aller chez" value={possibilities[0]} />
-                        <Choice prefix="Ou au pire chez" value={possibilities[1]} />
+                        {choiceNodes}
                     </div>
                 </div>
             </div>
@@ -84,6 +116,6 @@ function shuffle(inputArr) {
 
 
 React.render(
-    <Container bgNumber={bgNumber} />,
+    <ChoiceContainer bgNumber={bgNumber} url="choices.json" />,
     document.getElementById('main')
 );
